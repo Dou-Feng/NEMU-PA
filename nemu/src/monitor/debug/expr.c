@@ -92,7 +92,7 @@ static bool make_token(char *e) {
 				tokens[nr_token].type = rules[i].token_type;
         switch (rules[i].token_type) {
 					case TK_DECIMAL:
-						Assert(substr_len <= 32, "Length of decimal is too long");
+						Assert(substr_len <= 31, "Length of decimal is too long");
 						strncpy(tokens[nr_token].str, substr_start, substr_len);
 						break;
           default: break; 
@@ -195,6 +195,12 @@ uint32_t eval(int p, int q, bool *success) {
 				inbrkt++;
 			} else if (tokens[i].type == ')') {
 				inbrkt--;
+				// find the bracket mismatch
+				if (inbrkt < 0) {
+					Log("Bad expression, bracket mismatch");
+					*success = false;
+					return 0;
+				}
 			}
 			// if the oprand is in the bracket, skip
 			if (inbrkt > 0) continue;
@@ -207,7 +213,13 @@ uint32_t eval(int p, int q, bool *success) {
 				pivot = i;
 			}
 		}
-	
+
+		// check the bracket appear in pair
+		if (inbrkt != 0) {
+			Log("Bad expression, bracket mismatch");
+			*success = false;
+			return 0;
+		}
 		// ensure the expression is valid
 		if (pivot == -1) {
 			Log("Bad expression: can't find pivot");
