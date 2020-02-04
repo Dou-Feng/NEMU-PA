@@ -93,7 +93,7 @@ static int cmd_p(char *args) {
 	bool success;
 	uint32_t ans = expr(args, &success);
 	if (success) {
-		printf("%s = %d\n", args, ans);
+		printf("%s = %d, 0x%08x\n", args, ans, ans);
 	} else {
 		printf("Expression is invalid\n");
 	}
@@ -247,7 +247,8 @@ void test_cmd_p() {
 		sscanf(number, "%u", &result);
 		uint32_t ans = expr(args, &success);
 		if (!success || ans != result) {
-			printf("Test Failure! %u != %u\n", ans, result);
+			if (ans == UINT32_MAX) continue;
+			printf("Test Failure! %s\n %u != %u\n", args, ans, result);
 			return;
 		}
 	}

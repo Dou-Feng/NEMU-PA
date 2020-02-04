@@ -53,5 +53,30 @@ void isa_reg_display() {
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {
-  return 0;
+	char *p = (char *)s;
+	if (p == NULL) {
+		*success = 0;
+		return 0;
+	}
+	
+	// dismiss the '$'
+	if (p[0] == '$') {
+		p++;
+	}
+	*success = true;
+	if (strcmp(p, "pc") == 0) {
+		return cpu.pc;
+	}
+	// find the reg from the list
+	for (int i = 0; i < 8; i++) {
+		if (strcmp(p, regsl[i]) == 0) {
+			return reg_l(i);
+		} else if (strcmp(p, regsw[i]) == 0) {
+			return reg_w(i);
+		} else if (strcmp(p, regsb[i]) == 0) {
+			return reg_b(i);
+		}
+	} 
+	*success = false;
+	return 0;
 }
