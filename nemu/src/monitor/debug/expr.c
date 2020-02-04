@@ -23,7 +23,7 @@ static struct rule {
    */
 	{"\\(", '('},					// left bracket
 	{"\\)", ')'},					// right bracket
-	{"[0-9]+", TK_DECIMAL}, // decimal
+	{"[0-9]+u?", TK_DECIMAL}, // decimal
 	{"\\*", '*'},					// multiply
 	{"/", '/'},						// divide
   {" +", TK_NOTYPE},    // spaces
@@ -58,7 +58,8 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+#define MAX_TOKEN_NUM 1024
+static Token tokens[MAX_TOKEN_NUM] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 uint32_t eval(int , int, bool *);
@@ -69,7 +70,7 @@ static bool make_token(char *e) {
   regmatch_t pmatch;
 
   nr_token = 0;
-
+	
   while (e[position] != '\0') {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) {
@@ -89,11 +90,15 @@ static bool make_token(char *e) {
 				if (rules[i].token_type == TK_NOTYPE) {
 					break;
 				}
+				Assert(nr_token < MAX_TOKEN_NUM, "Too many tokens");
 				tokens[nr_token].type = rules[i].token_type;
         switch (rules[i].token_type) {
 					case TK_DECIMAL:
 						Assert(substr_len <= 31, "Length of decimal is too long");
 						strncpy(tokens[nr_token].str, substr_start, substr_len);
+
+						// add '\0' to terminate the string
+						tokens[nr_token].str[substr_len] = '\0';
 						break;
           default: break; 
         }
@@ -117,7 +122,6 @@ uint32_t expr(char *e, bool *success) {
     return 0;
   }
 	
-
   /* TODO: Insert codes to evaluate the expression. */
 	uint32_t ans = eval(0, nr_token-1, success);
 	if (*success) {
@@ -146,6 +150,19 @@ bool check_parenthenses(int p, int q) {
 	}
 }
 
+// check the tokens[p] is a unary operator
+// @input: the index of tokens
+// @return: if it's unary operator return true, or return false
+bool check_unaryop(int p) {
+	Assert(p >= 0 && p < nr_token, "Check_unaryop, not in range");
+	return (tokens[p].type == '+' || tokens[p].type == '-' || tokens[p].type == '*') && (
+					p == 0 || (tokens[p-1].type != ')' && tokens[p-1].type != TK_DECIMAL));
+}
+
+// evaluate a sub expression between p and q, which are the index of tokens.
+// @input: start pointer p and end pointer q, success is a pointer that indicate whether the eval is sucess
+// @output: success indicate the result of eval
+// @return: the result evaluated from the expression
 uint32_t eval(int p, int q, bool *success) {
 	if (p > q) {
 		Log("Bad expression: p > q");
@@ -162,7 +179,6 @@ uint32_t eval(int p, int q, bool *success) {
 			return 0;
 		}
 		uint64_t d;
-		Log("Number token is %s", tokens[p].str);
 		if (sscanf(tokens[p].str, "%ld", &d) != 1) {
 			Log("Bad expression: decimal number error");
 			*success = false;
@@ -175,8 +191,24 @@ uint32_t eval(int p, int q, bool *success) {
 		/* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
-		Log("In parenthenses(%d, %d)", p, q);
 		return eval(p+1, q-1, success);
+	} else if (p + 1 == q) {
+		// if there are only two tokens and the first token is one of the {'+', '-'},
+		// and the second token is a decimal
+		int type_f = tokens[p].type;
+		int type_s = tokens[q].type;
+		if ((type_f == '+' || type_f == '-') && type_s == TK_DECIMAL) {
+			uint32_t ans = eval(q, q, success);
+			if (!*success) {
+				return 0;
+			}
+			return (type_f == '+')?ans:-ans;
+		} else {
+			Log("Bad expression, invalid expression in (%d, %s)", type_f, tokens[q].str);
+			*success = false;
+			return 0;
+		}
+	
 	} else {
 		// check the validation
 		if (tokens[p].type == ')' || tokens[q].type == '(') {
@@ -205,6 +237,9 @@ uint32_t eval(int p, int q, bool *success) {
 			// if the oprand is in the bracket, skip
 			if (inbrkt > 0) continue;
 			
+			// if it's a unary operator, skip
+			if (check_unaryop(i)) continue;
+				
 			// if the oprand is '+' or '-', which is inferior.
 			if ((tokens[i].type == '+' || tokens[i].type == '-') && inbrkt == 0) {
 				pivot = i;
@@ -226,7 +261,6 @@ uint32_t eval(int p, int q, bool *success) {
 			*success = false;
 			return 0;
 		}
-		Log("Pivot is %d", pivot);
 		// Divide and conquer
 		uint32_t a = eval(p, pivot-1, success);
 		if (!*success) return 0;
@@ -239,7 +273,6 @@ uint32_t eval(int p, int q, bool *success) {
 			case '*': return a * b;
 			case '/': 
 				if (b == 0) {
-					Log("Bad expression: Divide 0");
 					*success = false;
 					return 0;
 				}

@@ -89,6 +89,7 @@ static int cmd_info(char *args){
 // @output: Print the reuslt of expression
 // @return: always return 0
 static int cmd_p(char *args) {
+	Log("In cmd_p");
 	bool success;
 	uint32_t ans = expr(args, &success);
 	if (success) {
@@ -225,4 +226,31 @@ void ui_mainloop(int is_batch_mode) {
 
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
   }
+}
+
+void test_cmd_p() {
+	// test function cmd_p
+	FILE *fp = fopen("/tmp/input", "r");
+	assert(fp != NULL);
+	uint32_t result = -1;
+	bool success;	
+	char line[65536 + 100];
+
+	while (fgets(line, 65536 + 100, fp) != NULL) {
+		char *number = strtok(line, " ");
+		char *args = line + strlen(number) + 1; 
+		// delete last '\n'
+		if (args[strlen(args)-1] == '\n') {
+			args[strlen(args)-1] = '\0';
+		}
+
+		sscanf(number, "%u", &result);
+		uint32_t ans = expr(args, &success);
+		if (!success || ans != result) {
+			printf("Test Failure! %u != %u\n", ans, result);
+			return;
+		}
+	}
+	printf("cmd_p test success!\n");
+	fclose(fp);
 }
