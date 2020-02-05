@@ -46,7 +46,10 @@ static int cmd_si(char *args) {
 	if (args != NULL) {
 		/* check validation of args */
 		char *str_n = strtok(args, " ");
-		Assert(strtok(NULL, " ") == NULL, "cmd_si(args), Too many param");
+		if (strtok(NULL, " ") != NULL) {
+			printf( "Too many arguments\n");
+			return 0;
+		}
 		sscanf(str_n, "%d", &N);
 	}
 	
@@ -66,21 +69,25 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args){
 	// check the args
 	if (args == NULL) {
-		Log("cmd_info(args), invalid args");
+		printf("Expect argument\n");
 		return 0;
 	}
 	char op;
 	if (sscanf(args, "%c", &op) == 0) {
-		Log("cmd_info(args), invalid args");
+		printf("Expect argument\n");
 		return 0;
 	}
 	
 	// Print values of registers
-	isa_reg_display();
-
+	if (op == 'r') {
+		isa_reg_display();
+	} else if (op == 'w') {
 	// Print values of watch points
-		
-	
+		watchpoint_display();
+	} else {
+		printf("Unexpected argument\n");
+		return 0;
+	}
 	return 0;
 }
 
@@ -89,13 +96,12 @@ static int cmd_info(char *args){
 // @output: Print the reuslt of expression
 // @return: always return 0
 static int cmd_p(char *args) {
-	Log("In cmd_p");
 	bool success;
 	uint32_t ans = expr(args, &success);
 	if (success) {
 		printf("%s = %d, 0x%08x\n", args, ans, ans);
 	} else {
-		printf("Expression is invalid\n");
+		printf("Unexpected argument\n");
 	}
 
 	return 0;
@@ -107,41 +113,69 @@ static int cmd_p(char *args) {
 // @return: Execute successfully return 0, or Assert
 static int cmd_x(char *args) {
 	// ensure the args is not NULL
-	Assert(args != NULL, "cmd_x(args), args is NULL");
-	
+	if (!args) {
+		printf("Expect argument\n");
+		return 0;
+	}
+
 	char *str_end = args + strlen(args);
 	/* parse the args */
 	// get number N
-	unsigned N;	
+	unsigned N = 1;	
 	char *str_n = strtok(args, " ");
-	Assert(sscanf(str_n, "%d", &N) == 1, "cmd_x(args), invalid param N");
-	
+	if (sscanf(str_n, "%d", &N) != 1) {
+		printf("Expect a positive integer\n");
+		return 0;
+	}
 	// get expr
 	char *str_expr = args + strlen(str_n) + 1;
-	Assert(str_expr != str_end, "cmd_x(args), param miss");
-	// Supposed that the expr is the contant value in hexdecimal form
-	paddr_t expr;
-	Assert(sscanf(str_expr, "%x", &expr) == 1, "cmd_x(args), invaid expression");
+	if (str_expr == str_end) {
+		printf("Expect more argument\n");
+		return 0;
+	}
+	bool success;
+	paddr_t begin = expr(str_expr, &success);
+	if (!success) {
+		printf("Unexpected argument\n");
+		return 0;
+	}
 	
 	// print consecutive N bytes memory
 	for (paddr_t i = 0; i < N; i++) {
-		printf("0x%08x: 0x%08x\n", expr+(i<<2), paddr_read(expr+(i<<2), 4));
+		printf("0x%08x: 0x%08x\n", begin+(i<<2), paddr_read(begin+(i<<2), 4));
 	}
 	return 0;
 }
 
 
 static int cmd_w(char *args) {
-
-
-return 0;
+	WP *wp;
+	if ((wp = new_wp(args))) {
+		printf("watchpiont at %s: 0x%08x, %u\n", wp->str, wp->value, wp->value);
+		return 0;
+	} else {
+		printf("Unexpected argument\n");
+		return 0;
+	}
 }
 
 
 static int cmd_d(char *args) {
-
-
-return 0;
+	if (!args) {
+		printf("Expect argument\n");
+		return 0;
+	}
+	WP wp;
+	if (sscanf(args, "%u", &wp.NO) != 1) {
+		printf("Expect a positive integer\n");
+		return 0;
+	}
+	if (free_wp(&wp)) {
+		printf("Delete watchpoint %u\n", wp.NO);
+	} else {
+		printf("Delete watchpoint fail\n");
+	}
+	return 0;
 }
 
 

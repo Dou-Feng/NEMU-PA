@@ -342,7 +342,8 @@ uint32_t eval(int p, int q, bool *success) {
 			case TK_OR: Log("%u || %u: %d", a, b, a||b); return a || b;
 			case TK_POS: Log("%u", b); return b;
 			case TK_NEG: Log("%d", -b); return -b;
-			case TK_DEREF: Log("*x = %u", b); return b;
+			case TK_DEREF:
+				a = paddr_read(b, 4); Log("x = %u, *x = %u", b, a); return a;  
 			default: *success = false; return 0;
 		}
 	} // end else

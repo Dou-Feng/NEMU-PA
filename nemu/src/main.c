@@ -2,7 +2,7 @@ int init_monitor(int, char *[]);
 void ui_mainloop(int);
 void test_cmd_p(void);
 
-#define TEST_CMD_P
+//#define TEST_CMD_P
 
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
