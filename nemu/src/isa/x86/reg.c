@@ -64,7 +64,7 @@ uint32_t isa_reg_str2val(const char *s, bool *success) {
 		p++;
 	}
 	*success = true;
-	if (strcmp(p, "pc") == 0) {
+	if (strcmp(p, "pc") == 0 || strcmp(p, "eip") == 0) {
 		return cpu.pc;
 	}
 	// find the reg from the list

@@ -137,20 +137,36 @@ void watchpoint_display() {
 }
 
 void printchain() {
-	printf("Head chain: ");
+	Log("Head chain: ");
 	WP *p = head;
+	char buf[1024] = "";
+	int buf_p = 0;
 	while (p) {
-		printf("%d-> ", p->NO);
+		if (buf_p > 1000)  {
+			Log("%s\n", buf);
+			buf_p = 0;
+			buf[0] = '\0';
+		}
+		sprintf(buf + buf_p, "%u->", p->NO);
+		buf_p = strlen(buf);
 		p = p->next;
 	}
-	printf("NULL\n");
-	printf("Free_ chain: ");
+	Log("%s->NULL", buf);
+	Log("Free_ chain: ");
 	p = free_;
+	buf_p = 0;
+	buf[0] = '\0';
 	while (p) {
-		printf("%d-> ", p->NO);
+		if (buf_p > 1000) {
+			Log("%s\n", buf);
+			buf_p = 0;
+			buf[0] = '\0';
+		}
+		sprintf(buf+buf_p, "%u->", p->NO);
+		buf_p = strlen(buf);
 		p = p->next;
 	}
-	printf("NULL\n");
+	Log("%s->NULL", buf);
 }
 
 // update the watchpoints' value

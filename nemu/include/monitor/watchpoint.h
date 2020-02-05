@@ -9,7 +9,7 @@ typedef struct watchpoint {
 	
   /* TODO: Add more members if necessary */
 	char str[1024]; // to record the expression
-	int32_t value; // to record the orginal value
+	uint32_t value; // to record the orginal value
 } WP;
 
 WP* new_wp(char *expr);

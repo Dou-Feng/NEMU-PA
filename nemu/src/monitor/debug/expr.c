@@ -306,9 +306,9 @@ uint32_t eval(int p, int q, bool *success) {
 		}
 		
 		if (tokens[pivot].type >= TK_NOTYPE && tokens[pivot].type < sizeof(TOKEN_TYPE_STR) / sizeof(char*) + TK_NOTYPE)
-			Log("Info: tokens[%d].type = %s", pivot, TOKEN_TYPE_STR[tokens[pivot].type- TK_NOTYPE]);
+			Log("tokens[%d].type = %s", pivot, TOKEN_TYPE_STR[tokens[pivot].type- TK_NOTYPE]);
 		else 
-			Log("Info tokens[%d].type = %c", pivot, tokens[pivot].type);
+			Log("tokens[%d].type = %c", pivot, tokens[pivot].type);
 		// Divide and conquer
 		uint32_t a = 0, b;
 		// if the opeartor isn's unary
