@@ -14,7 +14,24 @@ make_EHelper(and) {
 }
 
 make_EHelper(xor) {
-  TODO();
+  rtl_xor(&s0, &id_dest->val, &id_src->val);
+
+  // write the answer back 
+  if (id_dest->type == OP_TYPE_REG) {
+    rtl_sr(id_dest->reg, &s0, id_dest->width);
+  } else if (id_dest->type == OP_TYPE_MEM) {
+    rtl_sm(&id_dest->addr, &s0, id_dest->width);
+  } else {
+    panic("Unsupported op type");
+  }
+
+  // update CF, OF
+  rtl_li(&s1, 0);
+  rtl_set_CF(&s0);
+  rtl_set_OF(&s0);
+  
+  // update ZF, SF
+  rtl_update_ZFSF(&s0, id_dest->width);
 
   print_asm_template2(xor);
 }

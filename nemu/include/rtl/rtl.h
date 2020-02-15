@@ -25,7 +25,7 @@ static inline void interpret_rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   static inline void concat(interpret_rtl_, name) (rtlreg_t* dest, const rtlreg_t* src1, const rtlreg_t* src2) { \
     *dest = concat(c_, name) (*src1, *src2); \
   } \
-  /* Actually those of imm version are pseudo rtl instructions,
+  /* Actually those of imm version are pseudo rtl instructions, \
    * but we define them here in the same macro */ \
   static inline void concat(rtl_, name ## i) (rtlreg_t* dest, const rtlreg_t* src1, int imm) { \
     rtl_li(&ir, imm); \
@@ -132,12 +132,17 @@ void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret);
 
 static inline void rtl_not(rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- ~src1
-  TODO();
+  *dest = ~*src1;
 }
 
 static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  TODO();
+  Assert(width > 0 && width <= 4, "width is not in range");
+  if (width == 4)
+    *dest = *src1;
+  else 
+    *dest = ((((*src1 >> ((width << 3)-1)) & 0x1)?(int)0xff000000:0x00) >> ((3 - width) << 3))
+            | (*src1 & (~(0xffffffff << (width << 3))));
 }
 
 static inline void rtl_setrelopi(uint32_t relop, rtlreg_t *dest,
@@ -148,12 +153,12 @@ static inline void rtl_setrelopi(uint32_t relop, rtlreg_t *dest,
 
 static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  TODO();
+  *dest = *src1 & (width<4?(~(0xffffffff << (width << 3))):0xffffffff);
 }
 
 static inline void rtl_mux(rtlreg_t* dest, const rtlreg_t* cond, const rtlreg_t* src1, const rtlreg_t* src2) {
   // dest <- (cond ? src1 : src2)
-  TODO();
+  *dest = *cond ? *src1 : *src2;
 }
 
 #include "isa/rtl.h"

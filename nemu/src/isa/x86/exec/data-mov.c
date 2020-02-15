@@ -6,14 +6,15 @@ make_EHelper(mov) {
 }
 
 make_EHelper(push) {
-  TODO();
-
+  rtl_push(&id_dest->val);
   print_asm_template1(push);
 }
 
 make_EHelper(pop) {
-  TODO();
+  rtl_pop(&id_dest->val);
 
+  // store data to the reg
+  rtl_sr(id_dest->reg, &id_dest->val, 4);
   print_asm_template1(pop);
 }
 

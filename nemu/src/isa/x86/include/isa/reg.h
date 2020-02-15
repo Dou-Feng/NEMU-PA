@@ -17,6 +17,26 @@ enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
  */
 
 typedef struct {
+	// flag registers
+	union {
+		struct {
+			uint8_t CF	: 1;
+			uint8_t _s1	: 1; // _s1, _s2, ..., _s5 used to fill the gap
+			uint8_t PF	: 1;
+			uint8_t _s2	: 1;
+			uint8_t AF	: 1;
+			uint8_t _s3	: 1;
+			uint8_t ZF	: 1;
+			uint8_t SF	: 1;
+
+			uint8_t TF	: 1;
+			uint8_t IF	: 1;
+			uint8_t DF	: 1;
+			uint8_t OF	: 1;
+			uint8_t _s5 : 4;
+		};
+		rtlreg_t eflags;
+	};
 	union {
 		union {
 			uint32_t _32;
