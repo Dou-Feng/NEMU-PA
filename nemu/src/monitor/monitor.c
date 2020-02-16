@@ -88,7 +88,7 @@ int init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log(log_file);
-
+  Log("%s", log_file);
   /* Load the image to memory. */
   long img_size = load_img();
 

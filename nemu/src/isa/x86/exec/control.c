@@ -26,14 +26,17 @@ make_EHelper(jmp_rm) {
 
 make_EHelper(call) {
   // the target address is calculated at the decode stage
+  // save the current pc
+  rtl_push(pc);
+  // jmp
   rtl_j(decinfo.jmp_pc);
   
   print_asm("call %x", decinfo.jmp_pc);
 }
 
 make_EHelper(ret) {
-  TODO();
-
+  // restore the original pc
+  rtl_pop(pc);
   print_asm("ret");
 }
 
