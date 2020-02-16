@@ -29,6 +29,8 @@ typedef uint16_t ioaddr_t;
 #define false 0
 #define true 1
 
+#define DIFF_TEST
+
 #include "debug.h"
 #include "macro.h"
 

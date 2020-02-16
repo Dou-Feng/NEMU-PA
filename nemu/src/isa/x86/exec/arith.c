@@ -1,7 +1,26 @@
 #include "cpu/exec.h"
 
 make_EHelper(add) {
-  TODO();
+  Assert(id_dest->width == 1 || id_dest->width == 2 || id_dest->width == 4,  "id_dest->width invalid");
+  // check if the src is a byte, and the dest is a word or dword
+  if (id_src->width == 1 && id_dest->width > 1) {
+    rtl_sext(&id_src->val, &id_src->val, id_dest->width);
+  }
+  // arithmetic subtract, use s0 to store intermediate result
+  rtl_add(&s0, &id_dest->val, &id_src->val);
+  // write the answer back 
+  operand_write(id_dest, &s0);
+
+  // update ZF, SF
+  rtl_update_ZFSF(&s0, id_dest->width);
+
+  // update OF
+  rtl_is_add_overflow(&s1, &s0, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_set_OF(&s1);
+
+  // update CF
+  rtl_is_add_carry(&s1, &s0, &id_dest->val);
+  rtl_set_CF(&s1);
 
   print_asm_template2(add);
 }
@@ -15,13 +34,7 @@ make_EHelper(sub) {
   // arithmetic subtract, use s0 to store intermediate result
   rtl_sub(&s0, &id_dest->val, &id_src->val);
   // write the answer back 
-  if (id_dest->type == OP_TYPE_REG) {
-    rtl_sr(id_dest->reg, &s0, id_dest->width);
-  } else if (id_dest->type == OP_TYPE_MEM) {
-    rtl_sm(&id_dest->addr, &s0, id_dest->width);
-  } else {
-    panic("Unsupported op type");
-  }
+  operand_write(id_dest, &s0);
 
   // update ZF, SF
   rtl_update_ZFSF(&s0, id_dest->width);
@@ -37,19 +50,61 @@ make_EHelper(sub) {
 }
 
 make_EHelper(cmp) {
-  TODO();
+  // src sign extend
+  rtl_sext(&id_src->val, &id_src->val, id_dest->width);
+  // Log("dest = 0x%x %d, src = 0x%x %d", id_dest->val, id_dest->val, id_src->val, id_src->val);
+
+  // arithmetic subtract, use s0 to store intermediate result
+  rtl_sub(&s0, &id_dest->val, &id_src->val);
+  // Log("res = 0x%x %d", s0, s0);
+  // don't write the answer back 
+  // Log("width = %d", id_dest->width);
+
+  // update ZF, SF
+  rtl_update_ZFSF(&s0, id_dest->width);
+  // Log("ZF = %d, SF = %d", cpu.ZF, cpu.SF);
+
+  // update OF
+  rtl_is_sub_overflow(&s1, &s0, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_set_OF(&s1);
+
+  // update CF
+  rtl_is_sub_carry(&s1, &s0, &id_dest->val);
+  rtl_set_CF(&s1);
 
   print_asm_template2(cmp);
 }
 
 make_EHelper(inc) {
-  TODO();
+  rtl_addi(&s0, &id_dest->val, 1);
+
+  // write the answer back
+  operand_write(id_dest, &s0);
+
+  // change the ZF, SF
+  rtl_update_ZFSF(&s0, id_dest->width);
+
+  // update OF
+  rtl_li(&s1, 1);
+  rtl_is_add_overflow(&s1, &s0, &id_dest->val, &s1, id_dest->width);
+  rtl_set_OF(&s1);
 
   print_asm_template1(inc);
 }
 
 make_EHelper(dec) {
-  TODO();
+  rtl_subi(&s0, &id_dest->val, 1);
+
+  // write the answer back
+  operand_write(id_dest, &s0);
+
+  // change the ZF, SF
+  rtl_update_ZFSF(&s0, id_dest->width);
+
+  // update OF
+  rtl_li(&s1, 1);
+  rtl_is_sub_overflow(&s1, &s0, &id_dest->val, &s1, id_dest->width);
+  rtl_set_OF(&s1);
 
   print_asm_template1(dec);
 }
@@ -61,6 +116,9 @@ make_EHelper(neg) {
 }
 
 make_EHelper(adc) {
+  if (id_src->width == 1 && id_dest->width > 1) {
+    rtl_sext(&id_src->val, &id_src->val, id_dest->width);
+  }
   // s0 = dest + src
   rtl_add(&s0, &id_dest->val, &id_src->val);
   // s1 = s0 + CF
@@ -89,6 +147,9 @@ make_EHelper(adc) {
 }
 
 make_EHelper(sbb) {
+  if (id_src->width == 1 && id_dest->width > 1) {
+    rtl_sext(&id_src->val, &id_src->val, id_dest->width);
+  }
   // s0 = dest - src
   rtl_sub(&s0, &id_dest->val, &id_src->val);
   // s1 = s0 - CF
