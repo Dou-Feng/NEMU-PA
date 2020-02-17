@@ -51,7 +51,8 @@ make_EHelper(sub) {
 
 make_EHelper(cmp) {
   // src sign extend
-  rtl_sext(&id_src->val, &id_src->val, id_dest->width);
+  if (id_src->type == OP_TYPE_IMM)
+    rtl_sext(&id_src->val, &id_src->val, id_dest->width);
   // Log("dest = 0x%x %d, src = 0x%x %d", id_dest->val, id_dest->val, id_src->val, id_src->val);
 
   // arithmetic subtract, use s0 to store intermediate result
@@ -110,7 +111,25 @@ make_EHelper(dec) {
 }
 
 make_EHelper(neg) {
-  TODO();
+  // set CF
+  if (id_dest->val == 0) {
+    rtl_li(&s0, 0);
+  } else {
+    rtl_li(&s0, 1);
+  }
+  rtl_set_CF(&s0);
+  rtl_li(&s0, 0);
+  rtl_sub(&s1, &s0, &id_dest->val);
+  
+  // write the answer back
+  operand_write(id_dest, &s1);
+
+  // update ZF, SF
+  rtl_update_ZFSF(&s1, id_dest->width);
+
+  // update OF
+  rtl_is_sub_overflow(&s1, &s1, &s0, &id_dest->val, id_dest->width);
+  rtl_set_OF(&s1);
 
   print_asm_template1(neg);
 }

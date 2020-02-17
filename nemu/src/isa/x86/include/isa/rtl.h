@@ -41,11 +41,10 @@ static inline void rtl_pop(rtlreg_t* dest) {
 static inline void rtl_is_sub_overflow(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
   // dest <- is_overflow(src1 - src2)
-  // It comes to src1 + src2 = res, overflow means src1 and src2 have the same sign, 
+  // It comes to src1 - src2 = res that overflow means src1 and src2 have the opposite sign, 
   // and res's sign is opposite to src1.
-  // src1 - src2 = res can convert to src1 + (-src2) = res
-  *dest = (*src1 & (0x80 << ((width-1)*8))) ^ ((-*src2) & (0x80 << ((width-1)*8)));
-  if (!*dest) { // if signs of src1 and (-src2) are the same
+  *dest = (*src1 & (0x80 << ((width-1)*8))) ^ (*src2 & (0x80 << ((width-1)*8)));
+  if (*dest) { // if signs of src1 and src2 are opposite
     // if signs of res and src1 are opposite, it indicates overflow
     *dest = ((*src1 & (0x80 << ((width-1)*8))) ^ (*res & (0x80 << ((width-1)*8))))?1:0;
   } else {

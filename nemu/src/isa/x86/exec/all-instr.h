@@ -37,3 +37,16 @@ make_EHelper(shl);
 make_EHelper(sar);
 make_EHelper(shr);
 make_EHelper(not);
+make_EHelper(cltd);
+make_EHelper(cwtl);
+make_EHelper(mul);
+make_EHelper(div);
+make_EHelper(idiv);
+make_EHelper(imul2);
+make_EHelper(imul3);
+make_EHelper(call_rm);
+make_EHelper(jmp_rm);
+// 2020年02月17日13:31:17
+make_EHelper(neg);
+make_EHelper(out);
+make_EHelper(in);

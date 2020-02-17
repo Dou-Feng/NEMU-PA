@@ -47,7 +47,10 @@ make_EHelper(ret_imm) {
 }
 
 make_EHelper(call_rm) {
-  TODO();
+  // calculate the jmp_pc
+  // if the width is not 4, there may exist a bug
+  rtl_push(pc);
+  rtl_j(id_dest->val);
 
   print_asm("call *%s", id_dest->str);
 }
