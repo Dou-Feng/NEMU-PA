@@ -36,6 +36,7 @@ void device_update() {
   device_update_flag = false;
 
   SDL_Event event;
+  event.type = SDL_KEYUP;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
       case SDL_QUIT: {

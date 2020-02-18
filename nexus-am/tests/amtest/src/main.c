@@ -24,7 +24,7 @@ int main(const char *args) {
     CASE('k', keyboard_test, IOE);
     CASE('v', video_test, IOE);
     CASE('p', vm_test, IOE, CTE(vm_handler), VME(simple_pgalloc, simple_pgfree));
-    case 'H':
+    case 'H': printf("hello!\n");
     default:
       printf("Usage: make run mainargs=*\n");
       for (int ch = 0; ch < 256; ch++) {

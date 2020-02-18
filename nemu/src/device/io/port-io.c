@@ -21,6 +21,9 @@ void add_pio_map(char *name, ioaddr_t addr, uint8_t *space, int len, io_callback
 static inline uint32_t pio_read_common(ioaddr_t addr, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  // if (mapid == -1) {
+  //   Log("the addr is 0x%x, len is %d", addr, len);
+  // }
   assert(mapid != -1);
   return map_read(addr, len, &maps[mapid]);
 }
@@ -28,6 +31,9 @@ static inline uint32_t pio_read_common(ioaddr_t addr, int len) {
 static inline void pio_write_common(ioaddr_t addr, uint32_t data, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  if (mapid == -1) {
+    Log("the addr is 0x%x", addr);
+  }
   assert(mapid != -1);
   map_write(addr, data, len, &maps[mapid]);
 }
