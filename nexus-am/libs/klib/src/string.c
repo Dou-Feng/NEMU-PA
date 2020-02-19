@@ -4,14 +4,14 @@
 
 #define MAX_STR __UINT32_MAX__
 size_t strlen(const char *s) {
-  assert(s != NULL);
+  // assert(s != NULL);
   size_t len;
   for (len = 0; len < MAX_STR && s[len] != '\0'; len++);
   return len;
 }
 
 char *strcpy(char* dst,const char* src) {
-  assert((dst != NULL) && (src != NULL));
+  // assert((dst != NULL) && (src != NULL));
   char *r = dst;
   while ((*r++ = *src++) != '\0') {
     // _putc(*(r-1));
@@ -21,7 +21,7 @@ char *strcpy(char* dst,const char* src) {
 }
 
 char* strncpy(char* dst, const char* src, size_t n) {
-  assert((dst != NULL) && (src != NULL));
+  // assert((dst != NULL) && (src != NULL));
   char *r = dst;
   int t = 0;
   while (t++ < n && ((*r++ = *src++) != '\0'));
@@ -29,7 +29,7 @@ char* strncpy(char* dst, const char* src, size_t n) {
 }
 
 char* strcat(char* dst, const char* src) {
-  assert((dst != NULL) && (src != NULL));
+  // assert((dst != NULL) && (src != NULL));
   char *r = dst;
   while (*r != '\0') {
     r++;
@@ -46,7 +46,7 @@ char* strcat(char* dst, const char* src) {
 }
 
 int strcmp(const char* s1, const char* s2) {
-  assert((s1 != NULL) && (s2 != NULL));
+  // assert((s1 != NULL) && (s2 != NULL));
   // if (s1 == NULL && s2 == NULL) return 0;
   // if (s2 == NULL) return 1;
   // else if (s1 == NULL) return -1;
@@ -73,7 +73,7 @@ int strcmp(const char* s1, const char* s2) {
 }
 
 int strncmp(const char* s1, const char* s2, size_t n) {
-  assert((s1 != NULL) && (s2 != NULL));
+  // assert((s1 != NULL) && (s2 != NULL));
   // if (s1 == NULL && s2 == NULL) return 0;
   // if (s2 == NULL) return 1;
   // else if (s1 == NULL) return -1;

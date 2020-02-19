@@ -26,15 +26,16 @@ static inline void rtl_sr(int r, const rtlreg_t* src1, int width) {
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
   // M[esp] <- src1
-  cpu.esp -= 4;
+  rtl_subi(&cpu.esp, &cpu.esp, 4);
   Assert(cpu.esp >= 0, "cpu.esp < 0");
-  paddr_write(cpu.esp, *src1, 4); // default width is 4
+  rtl_sm(&cpu.esp, src1, 4); // default width is 4
+  rtl_lm(&t0, &cpu.esp, 4);
 }
 
 static inline void rtl_pop(rtlreg_t* dest) {
   // dest <- M[esp]
   // esp <- esp + 4
-  *dest = paddr_read(cpu.esp, 4);
+  rtl_lm(dest, &cpu.esp, 4);
   cpu.esp += 4;
 }
 

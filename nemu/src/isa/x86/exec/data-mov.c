@@ -7,6 +7,7 @@ make_EHelper(mov) {
 
 make_EHelper(push) {
   rtl_push(&id_dest->val);
+  // Log("0x%x addr: 0x%x v: 0x%x", cpu.pc, cpu.esp, id_dest->val);
   print_asm_template1(push);
 }
 

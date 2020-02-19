@@ -1,5 +1,6 @@
 #include <am.h>
 #include <nemu.h>
+#include <stdio.h>
 
 extern char _heap_start;
 extern char _heap_end;
@@ -23,6 +24,7 @@ void _halt(int code) {
 
 void _trm_init() {
   extern const char _start;
+  _putc((char)(int)&_start);
   const char *mainargs = &_start - 0x100000;
   int ret = main(mainargs);
   _halt(ret);

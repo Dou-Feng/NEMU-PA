@@ -58,6 +58,7 @@ static inline long load_img() {
 
     // mainargs
     strcpy(guest_to_host(0), mainargs);
+    printf("Mainargs: %s\n", (char*)guest_to_host(0));
   }
   return size;
 }
