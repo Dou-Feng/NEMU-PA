@@ -17,10 +17,11 @@ int main() {
     }
     uint32_t is_time = buf[0] == 't';
     time += is_time;
+    // printf("the time is %d\n", time);
     if (!is_time) {
       printf("receive event: %s", buf);
     }
-    else if (time % 10240 == 0) {
+    else if (time % 1024 == 0) {
       printf("receive time event for the %dth time: %s", time, buf);
     }
   }

@@ -10,6 +10,14 @@ size_t serial_write(const void *buf, size_t offset, size_t len);
 
 size_t events_read(void *buf, size_t offset, size_t len);
 
+size_t dispinfo_read(void *buf, size_t offset, size_t len);
+
+size_t fb_write(const void *buf, size_t offset, size_t len);
+
+size_t fbsync_write(const void *buf, size_t offset, size_t len);
+
+extern int screen_width_, screen_height_;
+
 typedef struct {
   char *name;
   size_t size;
@@ -37,6 +45,9 @@ static Finfo file_table[] __attribute__((used)) = {
   {"stdout", 0, 0, 0, invalid_read, serial_write},
   {"stderr", 0, 0, 0, invalid_read, serial_write},
   {"/dev/events", 0, 0, 0, events_read, serial_write},
+  {"/dev/fb", 0, 0, 0, NULL, fb_write},
+  {"/dev/fbsync", 0, 0, 0, NULL, fbsync_write},
+  {"/proc/dispinfo", 0, 0, 0, dispinfo_read, NULL},
 #include "files.h"
 };
 
@@ -44,7 +55,8 @@ static Finfo file_table[] __attribute__((used)) = {
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
-  for (int i = 3; i < NR_FILES; i++) {
+  file_table[4].size = screen_width_ * screen_height_ * sizeof(uint32_t);
+  for (int i = 7; i < NR_FILES; i++) {
     file_table[i].open_offset = file_table[i].disk_offset;
   }
 }
@@ -68,10 +80,10 @@ size_t fs_read(int fd, void *buf, size_t len) {
   if (file_table[fd].read == NULL) { // normal file
     check_len(&len, fd);
     len = ramdisk_read(buf, file_table[fd].open_offset, len);
-    file_table[fd].open_offset += len;
   } else {
     len = file_table[fd].read(buf, file_table[fd].open_offset, len);
   }
+  file_table[fd].open_offset += len;
   return len;
 }
 
@@ -79,10 +91,10 @@ size_t fs_write(int fd, const void *buf, size_t len) {
   if (file_table[fd].write == NULL) { // normal file
     check_len(&len, fd);
     len = ramdisk_write(buf, file_table[fd].open_offset, len);
-    file_table[fd].open_offset += len;
   } else {
     len = file_table[fd].write(buf, file_table[fd].open_offset, len);
   }
+  file_table[fd].open_offset += len;
   return len;
 }
 
