@@ -48,6 +48,7 @@ static Finfo file_table[] __attribute__((used)) = {
   {"/dev/fb", 0, 0, 0, NULL, fb_write},
   {"/dev/fbsync", 0, 0, 0, NULL, fbsync_write},
   {"/proc/dispinfo", 0, 0, 0, dispinfo_read, NULL},
+  {"/dev/tty", 0, 0, 0, NULL, serial_write},
 #include "files.h"
 };
 
@@ -64,6 +65,8 @@ void init_fs() {
 int fs_open(const char *pathname, int flags, int mode) {
   for (int i = 0; i < NR_FILES; i++) {
     if (strcmp(pathname, file_table[i].name) == 0) {
+      // need to reset the open offset, if it is reopened
+      file_table[i].open_offset = file_table[i].disk_offset;
       return i;
     }
   }

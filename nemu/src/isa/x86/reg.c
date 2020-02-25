@@ -1,6 +1,7 @@
 #include "nemu.h"
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 const char *regsl[] = {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"};
 const char *regsw[] = {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"};
@@ -79,4 +80,46 @@ uint32_t isa_reg_str2val(const char *s, bool *success) {
 	} 
 	*success = false;
 	return 0;
+}
+
+int isa_save_cpu_state(FILE *p) {
+	// save 8 basic registers
+	for (int i = 0; i < 8; i++) {
+		fwrite(&cpu.gpr[i], sizeof(rtlreg_t), 1, p);
+	}
+	// save eip
+	fwrite(&cpu.eip, sizeof(vaddr_t), 1, p);
+
+	// save flag registers
+	fwrite(&cpu.eflags, sizeof(rtlreg_t), 1, p);
+
+	// save CS
+	fwrite(&cpu.cs, sizeof(rtlreg_t), 1, p);
+
+	// save IDTR
+	fwrite(&cpu.IDTR.limit, sizeof(unsigned short), 1, p);
+	fwrite(&cpu.IDTR.base, sizeof(unsigned short), 1, p);
+	return 0;
+}
+
+int isa_load_cpu_state(FILE *p) {
+	int ret;
+	// load 8 basic registers
+	for (int i = 0; i < 8; i++) {
+		ret = fread(&cpu.gpr[i], sizeof(rtlreg_t), 1, p);
+		if (ret == -1) return ret;
+	}
+	// load eip
+	ret = fread(&cpu.eip, sizeof(vaddr_t), 1, p);
+	if (ret == -1) return ret;
+	// load flag registers
+	ret = fread(&cpu.eflags, sizeof(rtlreg_t), 1, p);
+	if (ret == -1) return ret;
+	// load CS
+	ret = fread(&cpu.cs, sizeof(rtlreg_t), 1, p);
+	if (ret == -1) return ret;
+	// load IDTR
+	ret = fread(&cpu.IDTR.limit, sizeof(unsigned short), 1, p);
+	ret = fread(&cpu.IDTR.base, sizeof(unsigned short), 1, p);
+	return ret;
 }

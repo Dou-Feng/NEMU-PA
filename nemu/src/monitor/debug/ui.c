@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stdio.h>
 
 void cpu_exec(uint64_t);
 void exec_once(void);
@@ -178,6 +179,45 @@ static int cmd_d(char *args) {
 	return 0;
 }
 
+// use the distinguish the diff test mode
+void difftest_detach();
+void difftest_attach();
+static int cmd_detach(char *args) {
+	difftest_detach();
+	return 0;
+}
+
+static int cmd_attach(char *args) {
+	difftest_attach();
+	return 0;
+}
+
+int isa_save_cpu_state(FILE *p);
+int isa_load_cpu_state(FILE *p);
+
+static int cmd_save(char *args) {
+	FILE *fp = fopen(args, "w");
+	if (fp == NULL) {
+		printf("Please enter a valid path.\n");
+		return 0;
+	}
+	int ret = isa_save_cpu_state(fp);
+	if (ret == -1) assert(0);
+	fclose(fp);
+	return 0;
+}
+
+static int cmd_load(char *args) {
+	FILE *fp = fopen(args, "r");
+	if (fp == NULL) {
+		printf("Please enter a valid path.\n");
+		return 0;
+	}
+	int ret = isa_load_cpu_state(fp);
+	if (ret == -1) assert(0);
+	fclose(fp);
+	return 0;
+}
 
 static int cmd_help(char *args);
 
@@ -197,6 +237,10 @@ static struct {
 	{ "x", "Find the value of expression EXPR, take the result as the starting memory address, and output n consecutive 4 bytes in hexadecimal form", cmd_x },
 	{ "w", "Pause program execution when the value of expression EXPR changes", cmd_w },
 	{ "d", "Delete the watch point with N", cmd_d },
+	{ "detach", "Disable diff-test", cmd_detach},
+	{ "attach", "Enable diff-test", cmd_attach},
+	{ "save", "Snapshots", cmd_save},
+	{ "load", "Load nemu from file", cmd_load},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))

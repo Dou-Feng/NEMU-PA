@@ -176,7 +176,7 @@ WP* update_value() {
 	bool success;
 	while (p) {
 		uint32_t new_v = expr(p->str, &success);
-		Assert(success, "UpdateValue, watchpoint %u's expr error", p->NO);
+		Assert(success, "Update value, watchpoint %u's expr error", p->NO);
 		if (new_v != p->value) {
 			p->value = new_v;
 			return p;

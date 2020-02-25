@@ -20,6 +20,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   
   // use fs_read to load excuteable files
   int fd = fs_open(filename, 0, 0);
+  Log("the fd = %d, filename =%s", fd, filename);
   assert(fs_read(fd, &elf_header, sizeof(Elf_Ehdr)) == elf_header.e_ehsize);
 
   // get program Headers
