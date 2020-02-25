@@ -19,6 +19,7 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t events_read(void *buf, size_t offset, size_t len) {
+  int ret = 0;
   char rec_buf[40];
   int key = read_key();
   int down = 0;
@@ -30,6 +31,7 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     sprintf(rec_buf, "%s %s\n", down?"kd":"ku", keyname[key]);
     len -= strlen(rec_buf);
     if (len < 0) return -1;
+    ret = strlen(rec_buf);
     strcpy(buf, rec_buf);
   }
   
@@ -41,9 +43,10 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     sprintf(rec_buf, "t %d\n", microsec);
     len -= strlen(rec_buf);
     if (len < 0) return strlen(buf);
-    strcat(buf, rec_buf);
+    sprintf(buf+ret, "%s", rec_buf);
+    ret += strlen(rec_buf);
   }
-  return strlen(buf)==0?-1:strlen(buf);
+  return ret==0?-1:ret;
 }
 
 static char dispinfo[128] __attribute__((used)) = {};
