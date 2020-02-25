@@ -58,7 +58,14 @@ typedef struct {
 		};
 		rtlreg_t eflags;
 	};
+	// add CS to pass DIFF TEST
+	rtlreg_t cs;
 
+	// add IDTR
+	struct IDTR_type {
+		unsigned short limit;
+		rtlreg_t base;
+	}IDTR;
 } CPU_state;
 
 static inline int check_reg_index(int index) {
@@ -70,8 +77,11 @@ static inline int check_reg_index(int index) {
 #define reg_w(index) (cpu.gpr[check_reg_index(index)]._16)
 #define reg_b(index) (cpu.gpr[check_reg_index(index) & 0x3]._8[index >> 2])
 
-#define EFLAGS(f) (cpu.f)
+#define EFLAG(f) (cpu.f)
+#define EFLAGS (cpu.eflags)
 
+#define CS (cpu.cs)
+#define IDTR(f) (cpu.IDTR.f)
 
 static inline const char* reg_name(int index, int width) {
   extern const char* regsl[];

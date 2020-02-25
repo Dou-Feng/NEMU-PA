@@ -51,3 +51,10 @@ make_EHelper(neg);
 make_EHelper(out);
 make_EHelper(in);
 make_EHelper(rol);
+
+// 2020年02月21日21:02:08
+make_EHelper(int);
+make_EHelper(lidt);
+make_EHelper(pusha);
+make_EHelper(popa);
+make_EHelper(iret);

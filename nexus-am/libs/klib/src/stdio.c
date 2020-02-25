@@ -110,7 +110,7 @@ int format_output(char *out, const char *fmt, va_list ap) {
   char *p = NULL;
   while (i < len) {
     if (fmt[i] != '%') {
-      if (out) {
+      if (out != NULL) {
         out[p_len++] = fmt[i++];
       } else {
         _putc(fmt[i++]);
@@ -151,7 +151,7 @@ int format_output(char *out, const char *fmt, va_list ap) {
           p_len += strlen(buf);
           break;
         case 's': // str
-          if (out)
+          if (out != NULL)
             strcpy(out+p_len, p);
           else
             print_str(p);
@@ -160,7 +160,7 @@ int format_output(char *out, const char *fmt, va_list ap) {
       }
     }
   }
-  if (out)
+  if (out != NULL)
     out[p_len] = '\0';
   return p_len;
 }

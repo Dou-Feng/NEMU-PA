@@ -36,11 +36,11 @@ char* strcat(char* dst, const char* src) {
   }
   while ((*r++ = *src++) != '\0');
   // _putc('c'); _putc('a');_putc('t');_putc(':');_putc(' ');
-  int i = 0;
-  while (dst[i] != '\0') {
-    _putc(dst[i]);
-    i++;
-  }
+  // int i = 0;
+  // while (dst[i] != '\0') {
+  //   _putc(dst[i]);
+  //   i++;
+  // }
   // _putc('\n');
   return dst;
 }

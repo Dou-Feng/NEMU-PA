@@ -2,7 +2,12 @@
 #include <amdev.h>
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  uint8_t *p = (uint8_t*)buf;
+  int i;
+  for (i = 0; i < len; i++) {
+    _putc(p[i]);
+  }
+  return i;
 }
 
 #define NAME(key) \
@@ -14,7 +19,31 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  char rec_buf[40];
+  int key = read_key();
+  int down = 0;
+  if (key & 0x8000) {
+    key ^= 0x8000;
+    down = 1;
+  }
+  if (key != _KEY_NONE) {
+    sprintf(rec_buf, "%s %s\n", down?"kd":"ku", keyname[key]);
+    len -= strlen(rec_buf);
+    if (len < 0) return -1;
+    strcpy(buf, rec_buf);
+  }
+  
+  uint32_t microsec = uptime();
+  // Log("micro second %d", microsec);
+  if (len > 0) {
+    memset(rec_buf, 0, sizeof(rec_buf));
+    rec_buf[0] = 't';
+    sprintf(rec_buf, "t %d\n", microsec);
+    len -= strlen(rec_buf);
+    if (len < 0) return strlen(buf);
+    strcat(buf, rec_buf);
+  }
+  return strlen(buf)==0?-1:strlen(buf);
 }
 
 static char dispinfo[128] __attribute__((used)) = {};

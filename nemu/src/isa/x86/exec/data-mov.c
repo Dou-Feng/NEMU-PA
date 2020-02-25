@@ -20,14 +20,24 @@ make_EHelper(pop) {
 }
 
 make_EHelper(pusha) {
-  TODO();
-
+  rtl_li(&s1, reg_l(R_ESP));
+  for (int i = R_EAX; i <= R_EDI; i++) {
+    if (i == R_ESP) {
+      rtl_push(&s1);
+    } else {
+      rtl_li(&s0, reg_l(i));
+      rtl_push(&s0);
+    }
+  }
   print_asm("pusha");
 }
 
 make_EHelper(popa) {
-  TODO();
-
+  for (int i = R_EDI; i >= R_EAX; i--) {
+    rtl_pop(&s0);
+    if (i == R_ESP) continue; // throwaway
+    rtl_sr(i, &s0, 4);
+  }
   print_asm("popa");
 }
 

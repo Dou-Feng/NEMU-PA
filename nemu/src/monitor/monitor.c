@@ -58,7 +58,6 @@ static inline long load_img() {
 
     // mainargs
     strcpy(guest_to_host(0), mainargs);
-    printf("Mainargs: %s\n", (char*)guest_to_host(0));
   }
   return size;
 }
@@ -83,7 +82,7 @@ static inline void parse_args(int argc, char *argv[]) {
 
 int init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
-
+  
   /* Parse arguments. */
   parse_args(argc, argv);
 

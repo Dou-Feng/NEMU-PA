@@ -2,6 +2,7 @@
 
 int main() {
   FILE *fp = fopen("/dev/events", "r");
+  if (!fp) return -1;
   int time = 0;
   printf("Start to receive events...\n");
   while (1) {
@@ -14,13 +15,12 @@ int main() {
         break;
       }
     }
-
-    int is_time = buf[0] == 't';
+    uint32_t is_time = buf[0] == 't';
     time += is_time;
     if (!is_time) {
       printf("receive event: %s", buf);
     }
-    else if (time % 1024 == 0) {
+    else if (time % 10240 == 0) {
       printf("receive time event for the %dth time: %s", time, buf);
     }
   }

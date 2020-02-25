@@ -1,8 +1,18 @@
 #include "cpu/exec.h"
 
-make_EHelper(lidt) {
-  TODO();
+void raise_intr(uint32_t NO, vaddr_t ret_addr);
 
+make_EHelper(lidt) {
+  // store data to IDTR.limit
+  rtl_lm(&s0, &id_dest->addr, 2);
+  IDTR(limit) = (unsigned short)s0 & 0xffff;
+  rtl_addi(&id_dest->addr, &id_dest->addr, 2);
+  rtl_lm(&s0, &id_dest->addr, 4);
+  if (decinfo.isa.is_operand_size_16) {
+    IDTR(base) = (0xffffff & s0);
+  } else {
+    IDTR(base) = s0;
+  }
   print_asm_template1(lidt);
 }
 
@@ -21,7 +31,7 @@ make_EHelper(mov_cr2r) {
 }
 
 make_EHelper(int) {
-  TODO();
+  raise_intr(id_dest->val, *pc);
 
   print_asm("int %s", id_dest->str);
 
@@ -29,7 +39,15 @@ make_EHelper(int) {
 }
 
 make_EHelper(iret) {
-  TODO();
+  // pop ip
+  rtl_pop(&s0);
+  rtl_j(s0);
+  // pop cs
+  rtl_pop(&s0);
+  CS = s0;
+  // pop eflags
+  rtl_pop(&s0);
+  EFLAGS = s0;
 
   print_asm("iret");
 }
