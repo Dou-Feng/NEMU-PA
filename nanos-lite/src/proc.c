@@ -29,17 +29,18 @@ void init_proc() {
   Log("Initializing processes...");
 
   // load program here
-  // naive_uload(NULL, "/bin/init");
+  // naive_uload(NULL, "/bin/hello");
   context_kload(&pcb[0], (void *)hello_fun);
   context_uload(&pcb[1], "/bin/init");
  
 }
 
 _Context* schedule(_Context *prev) {
-  Log("Schedule!");
+ 
   current->cp = prev;
 
   current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  // Log("Schedule! current->cp = 0x%x, current->cp->eip = 0x%x", current->cp, current->cp->eip);
 
   return current->cp;
 }

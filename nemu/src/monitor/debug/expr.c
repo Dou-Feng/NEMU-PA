@@ -17,11 +17,11 @@ enum {
 	TK_HEX, TK_REG,
 };
 
-static char *TOKEN_TYPE_STR[] = {
-	"TK_NOTYPE", "TK_EQ", "TK_DECIMAL", "TK_NEQ", "TK_DEREF", "TK_POS", "TK_NEG",
-	"TK_LESS", "TK_GREATER", "TK_LESS_EQ", "TK_GREATER_EQ", "TK_AND", "TK_OR",
-	"TK_HEX", "TK_REG",
-};
+// static char *TOKEN_TYPE_STR[] = {
+// 	"TK_NOTYPE", "TK_EQ", "TK_DECIMAL", "TK_NEQ", "TK_DEREF", "TK_POS", "TK_NEG",
+// 	"TK_LESS", "TK_GREATER", "TK_LESS_EQ", "TK_GREATER_EQ", "TK_AND", "TK_OR",
+// 	"TK_HEX", "TK_REG",
+// };
 
 static struct rule {
   char *regex;
@@ -97,8 +97,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
 
         /* TODO: Now a new token is recognized with rules[i]. Add codes
@@ -305,10 +305,10 @@ uint32_t eval(int p, int q, bool *success) {
 			return 0;
 		}
 		
-		if (tokens[pivot].type >= TK_NOTYPE && tokens[pivot].type < sizeof(TOKEN_TYPE_STR) / sizeof(char*) + TK_NOTYPE)
-			Log("tokens[%d].type = %s", pivot, TOKEN_TYPE_STR[tokens[pivot].type- TK_NOTYPE]);
-		else 
-			Log("tokens[%d].type = %c", pivot, tokens[pivot].type);
+		// if (tokens[pivot].type >= TK_NOTYPE && tokens[pivot].type < sizeof(TOKEN_TYPE_STR) / sizeof(char*) + TK_NOTYPE)
+		// 	Log("tokens[%d].type = %s", pivot, TOKEN_TYPE_STR[tokens[pivot].type- TK_NOTYPE]);
+		// else 
+		// 	Log("tokens[%d].type = %c", pivot, tokens[pivot].type);
 		// Divide and conquer
 		uint32_t a = 0, b;
 		// if the opeartor isn's unary
@@ -320,30 +320,29 @@ uint32_t eval(int p, int q, bool *success) {
 		if (!*success) return b;
 
 		switch(tokens[pivot].type) {
-			case '+':	Log("%u + %u = %u", a, b, a+b); return a + b; 
-			case '-': Log("%u - %u = %u", a, b, a-b); return a - b;
-			case '*': Log("%u * %u = %u", a, b, a*b); return a * b;
+			case '+': return a + b; 
+			case '-': return a - b;
+			case '*': return a * b;
 			case '/': 
 				if (b == 0) {
 					Log("ERORR: Divide by 0");
 					*success = false;
 					return UINT32_MAX;
 				}
-				Log("%u / %u = %u", a, b, a/b);	
 				return a / b;
 			/* add more token type */
-			case TK_EQ: Log("%u == %u: %d", a, b, a==b); return a == b;
-			case TK_NEQ: Log("%u != %u: %d", a, b, a != b); return a != b;
-			case TK_GREATER: Log("%u > %u: %d", a, b, a>b); return a > b;
-			case TK_GREATER_EQ: Log("%u >= %u: %d", a, b, a>=b); return a >= b;
-			case TK_LESS: Log("%u < %u: %d", a, b, a < b); return a < b;
-			case TK_LESS_EQ: Log("%u <= %u: %d", a, b, a <= b); return a <= b;
-			case TK_AND: Log("%u && %u: %d", a, b, a&&b); return a && b;
-			case TK_OR: Log("%u || %u: %d", a, b, a||b); return a || b;
-			case TK_POS: Log("%u", b); return b;
-			case TK_NEG: Log("%d", -b); return -b;
+			case TK_EQ: return a == b;
+			case TK_NEQ: return a != b;
+			case TK_GREATER: return a > b;
+			case TK_GREATER_EQ: return a >= b;
+			case TK_LESS: return a < b;
+			case TK_LESS_EQ: return a <= b;
+			case TK_AND: return a && b;
+			case TK_OR:  return a || b;
+			case TK_POS: return b;
+			case TK_NEG: return -b;
 			case TK_DEREF:
-				a = paddr_read(b, 4); Log("x = %u, *x = %u", b, a); return a;  
+				a = paddr_read(b, 4); return a;  
 			default: *success = false; return 0;
 		}
 	} // end else

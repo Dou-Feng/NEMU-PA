@@ -81,6 +81,7 @@ make_EHelper(in) {
 
 make_EHelper(out) {
   // Output the src value to the port of id_dest->val point to
+  // Log("the dest is 0x%x", id_dest->val);
   switch (id_src->width)
   {
     case 1:
