@@ -4,6 +4,7 @@
 int screen_width_, screen_height_;
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
+  _yield();
   uint8_t *p = (uint8_t*)buf;
   int i;
   for (i = 0; i < len; i++) {
@@ -21,6 +22,7 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t events_read(void *buf, size_t offset, size_t len) {
+  _yield();
   int ret = 0;
   char rec_buf[40];
   int key = read_key();
@@ -60,6 +62,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
+  _yield();
   offset /= sizeof(uint32_t);
   int x = offset % screen_width_;
   
@@ -83,7 +86,9 @@ void init_device() {
   // described in the Navy-apps convention
   screen_width_ = screen_width();
   screen_height_ = screen_height();
+
+  // it is neccessary!!! DONT CHANGE IT !!!!
   sprintf(dispinfo, "WIDTH:%d\n", screen_width_);
   sprintf(dispinfo+strlen(dispinfo), "HEIGHT:%d\n", screen_height_);
-  Log("%s", dispinfo);
+  // Log("%s", dispinfo);
 }

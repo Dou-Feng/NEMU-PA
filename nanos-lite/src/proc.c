@@ -2,6 +2,9 @@
 
 #define MAX_NR_PROC 4
 
+void context_kload(PCB *pcb, void *entry);
+void context_uload(PCB *pcb, const char *filename);
+
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
 PCB *current = NULL;
@@ -23,13 +26,20 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   switch_boot_pcb();
-
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(NULL, "/bin/init");
+  // naive_uload(NULL, "/bin/init");
+  context_kload(&pcb[0], (void *)hello_fun);
+  context_uload(&pcb[1], "/bin/init");
+ 
 }
 
 _Context* schedule(_Context *prev) {
-  return NULL;
+  Log("Schedule!");
+  current->cp = prev;
+
+  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+
+  return current->cp;
 }

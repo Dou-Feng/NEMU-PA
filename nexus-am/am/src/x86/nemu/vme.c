@@ -84,5 +84,8 @@ int _map(_AddressSpace *as, void *va, void *pa, int prot) {
 }
 
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, void *args) {
-  return NULL;
+  _Context *cp = (_Context *) ((int)ustack.end - sizeof(_Context) - sizeof(int) - sizeof(char **) - sizeof(char**));
+  cp->eip = (uint32_t) entry;
+  cp->cs = 8;
+  return cp;
 }
