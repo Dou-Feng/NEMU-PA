@@ -1,45 +1,27 @@
 #include "nemu.h"
 
-typedef union vaddr_t_m {
-  struct {
-    uint32_t offset : 12;
-    uint32_t page : 10;
-    uint32_t dir : 10;
-  };
-  vaddr_t val;
-} vaddr_t_m;
-
-
-#define OFF_MASK (0xfff)
 
 // 考虑到PTE和PDE都是4字节，所以对于PT和PE索引都需要每4字节移动一次，因此需要用(((uint32_t) vaddr.dir) << 2)来进行索引
 // 在最后从PT中得到了page_num之后，需要左移12位
 static inline paddr_t page_translate(vaddr_t addr) {
+  // Log("The addr is 0x%x", addr);
   vaddr_t_m vaddr = (vaddr_t_m) addr;
 
   // get PDE
   PDE pde;
-  // uint32_t dir_addr = (cpu.cr3.page_directory_base << 12) + (((uint32_t) vaddr.dir) << 2);
   uint32_t dir_addr = (cpu.cr3.val & ~OFF_MASK) | ((vaddr.dir << 2) & OFF_MASK);
-  // Log("The derectory base is 0x%x, the vaddr.dir is 0x%x", cpu.cr3.page_directory_base << 12, vaddr.dir);
-  // Assert(dir_addr == dir_addr2, "dir addr unequal");
   pde.val = paddr_read(dir_addr, 4);
-  Assert(pde.present, "The pde.present is invalid");
+  Assert(pde.present, "The pde.present is invalid, the addr is 0x%x", addr);
 
   // get PTE
   PTE pte;
-  // uint32_t page_addr = (pde.page_frame << 12) + (((uint32_t) vaddr.page) << 2);
   uint32_t page_addr = (pde.val & ~OFF_MASK) | ((vaddr.page << 2) & OFF_MASK);
-  // Assert(page_addr == page_addr2, "Page addr unequal");
-  //  Log("The pde.page_frame is 0x%x, the vaddr.page is 0x%x", pde.page_frame << 12, vaddr.page);
+
   pte.val = paddr_read(page_addr, 4);
-  Assert(pte.present, "The pte.present is invalid");
+  Assert(pte.present, "The pte.present is invalid, the addr is 0x%x", addr);
 
   // get physical address
-  // uint32_t paddr = (pte.page_frame << 12) + (uint32_t)vaddr.offset;
   uint32_t paddr = (pte.val & ~OFF_MASK) | (vaddr.offset & OFF_MASK);
-  // assert(paddr == paddr2);
-  // Log("The pte.page_frame is 0x%x, the vaddr.offset is 0x%x\n", (pte.page_frame << 12), vaddr.offset);
   return paddr;
 }
 
@@ -94,6 +76,7 @@ void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
     paddr_write(paddr, ((uint32_t)(data & mask)) >> (len << 3), rest_len);
   } else {
     paddr_t paddr = page_translate(addr);
+    // Log("addr is 0x%x, paddr is 0x%x", addr, paddr);
     paddr_write(paddr, data, len);
   }
 }

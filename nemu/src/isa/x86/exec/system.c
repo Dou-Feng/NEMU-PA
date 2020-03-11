@@ -17,7 +17,7 @@ make_EHelper(lidt) {
 }
 
 make_EHelper(mov_r2cr) {
-  Log("the rc no is %d, reg no is %d, val is 0x%x", id_dest->reg, id_src->reg, id_src->val);
+  // Log("the rc no is %d, reg no is %d, val is 0x%x", id_dest->reg, id_src->reg, id_src->val);
   cpu.crs[id_dest->reg] = id_src->val;
 
   print_asm("movl %%%s,%%cr%d", reg_name(id_src->reg, 4), id_dest->reg);

@@ -99,7 +99,6 @@ int strncmp(const char* s1, const char* s2, size_t n) {
 }
 
 void* memset(void* v,int c,size_t n) {
-  assert(v != NULL);
   uint8_t byte = (uint8_t) c;
   for (int i = 0; i < n; i++) {
     ((uint8_t*)v)[i] = byte;
@@ -108,8 +107,6 @@ void* memset(void* v,int c,size_t n) {
 }
 
 void* memcpy(void* out, const void* in, size_t n) {
-  assert((out != NULL) && (in != NULL));
-
   for (int i = 0; i < n; i++) {
     ((uint8_t*)out)[i] = ((uint8_t*)in)[i];
   }
@@ -117,7 +114,6 @@ void* memcpy(void* out, const void* in, size_t n) {
 }
 
 int memcmp(const void* s1, const void* s2, size_t n){
-  assert((s1 != NULL) && (s2 != NULL));
   unsigned char c1, c2;
   for (int i = 0; i < n; i++) {
     c1 = ((unsigned char*)s1)[i];

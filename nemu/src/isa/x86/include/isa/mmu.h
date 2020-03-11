@@ -10,6 +10,8 @@
 #define NR_PTE						1024
 #define PT_SIZE						((NR_PTE) * (PAGE_SIZE))
 
+#define OFF_MASK (0xfff)
+
 /* the Control Register 0 */
 typedef union CR0 {
   struct {
@@ -78,5 +80,14 @@ typedef union GateDescriptor {
   };
   uint32_t val;
 } GateDesc;
+
+typedef union vaddr_t_m {
+  struct {
+    uint32_t offset : 12;
+    uint32_t page : 10;
+    uint32_t dir : 10;
+  };
+  vaddr_t val;
+} vaddr_t_m;
 
 #endif
