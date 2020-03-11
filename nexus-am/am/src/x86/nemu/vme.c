@@ -45,7 +45,6 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
       }
     }
   }
-
   set_cr3(kpdirs);
   set_cr0(get_cr0() | CR0_PG);
   vme_enable = 1;
@@ -79,7 +78,9 @@ void __am_switch(_Context *c) {
   }
 }
 
+// 把物理页映射到虚拟用户空间中
 int _map(_AddressSpace *as, void *va, void *pa, int prot) {
+
   return 0;
 }
 

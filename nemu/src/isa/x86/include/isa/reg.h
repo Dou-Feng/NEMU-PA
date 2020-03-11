@@ -2,6 +2,7 @@
 #define __X86_REG_H__
 
 #include "common.h"
+#include "mmu.h"
 
 #define PC_START IMAGE_START
 
@@ -60,6 +61,16 @@ typedef struct {
 	};
 	// add CS to pass DIFF TEST
 	rtlreg_t cs;
+
+	// add CR0 and CR3
+	union {
+		rtlreg_t crs[4];
+		struct {
+			CR0 cr0;
+			rtlreg_t crrrs[2];
+			CR3 cr3;
+		};
+	};
 
 	// add IDTR
 	struct IDTR_type {
