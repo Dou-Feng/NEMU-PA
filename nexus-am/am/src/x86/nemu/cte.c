@@ -1,6 +1,8 @@
 #include <am.h>
 #include <x86.h>
 
+#include <klib.h>
+
 static _Context* (*user_handler)(_Event, _Context*) = NULL;
 
 void __am_irq0();
@@ -11,6 +13,7 @@ void __am_get_cur_as(_Context *c);
 void __am_switch(_Context *c);
 
 _Context* __am_irq_handle(_Context *c) {
+  // printf("In irq handle:: the as->ptr is 0x%x\n", c->as->ptr);
   __am_get_cur_as(c);
   _Context *next = c;
   if (user_handler) {
@@ -22,11 +25,14 @@ _Context* __am_irq_handle(_Context *c) {
     }
 
     next = user_handler(ev, c);
+    // printf("In irq handle:: the as->ptr is 0x%x\n", next->as->ptr);
     if (next == NULL) {
       next = c;
     }
   }
+  // printf("In irq handle:: the as->ptr is 0x%x\n", next->as->ptr);
   __am_switch(next);
+  // printf("In irq handle:: the as->ptr is 0x%x\n", next->as->ptr);
   return next;
 }
 

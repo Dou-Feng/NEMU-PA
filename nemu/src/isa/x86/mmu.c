@@ -10,15 +10,16 @@ static inline paddr_t page_translate(vaddr_t addr) {
   // get PDE
   PDE pde;
   uint32_t dir_addr = (cpu.cr3.val & ~OFF_MASK) | ((vaddr.dir << 2) & OFF_MASK);
+
   pde.val = paddr_read(dir_addr, 4);
-  Assert(pde.present, "The pde.present is invalid, the addr is 0x%x", addr);
+  Assert(pde.present, "The pde.present is invalid, the addr is 0x%x, the cr3's base is 0x%x", addr, cpu.cr3.val);
 
   // get PTE
   PTE pte;
   uint32_t page_addr = (pde.val & ~OFF_MASK) | ((vaddr.page << 2) & OFF_MASK);
 
   pte.val = paddr_read(page_addr, 4);
-  Assert(pte.present, "The pte.present is invalid, the addr is 0x%x", addr);
+  Assert(pte.present, "The pte.present is invalid, the addr is 0x%x, the cr3's base is 0x%x, the page_addr is 0x%x, the pte is 0x%x", addr, cpu.cr3.val, page_addr, pte.val);
 
   // get physical address
   uint32_t paddr = (pte.val & ~OFF_MASK) | (vaddr.offset & OFF_MASK);

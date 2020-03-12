@@ -7,6 +7,7 @@ extern char _end;
 
 void *_brk(const void *addr);
 int _execve(const char *path, char *const argv[], char *const envp[]);
+int mm_brk(uintptr_t brk, intptr_t increment);
 
 _Context* do_syscall(_Context *c) {
   uintptr_t a[4];
@@ -16,7 +17,7 @@ _Context* do_syscall(_Context *c) {
   a[3] = c->GPR4;
   // Log("System call: %d", a[0]);
   switch (a[0]) {
-    case SYS_exit: c->GPRx = _execve("/bin/init", (char **const)a[2], (char **const)a[3]); break;
+    case SYS_exit: _halt(0); c->GPRx = _execve("/bin/init", (char **const)a[2], (char **const)a[3]); break;
     case SYS_yield: _yield(); c->GPRx = 0; break;
     case SYS_open: c->GPRx = fs_open((char *)a[1], a[2], a[3]); break;
     case SYS_read: c->GPRx = fs_read(a[1], (void *)a[2], a[3]); break;
@@ -25,7 +26,7 @@ _Context* do_syscall(_Context *c) {
     case SYS_getpid:
     case SYS_close: break;
     case SYS_lseek: c->GPRx = fs_lseek(a[1], a[2], a[3]); break;
-    case SYS_brk: c->GPRx = (uintptr_t)(int*)_brk((void *)a[1]); break;
+    case SYS_brk: c->GPRx = mm_brk(a[1], a[2]); break;
     case SYS_fstat:
     case SYS_time:
     case SYS_signal:
@@ -53,6 +54,7 @@ size_t _write(int fildes, const void *buf, size_t nbyte) {
 }
 
 void *_brk(const void *addr) {
+  Log("The addr is 0x%x", addr);
   return 0;
 }
 

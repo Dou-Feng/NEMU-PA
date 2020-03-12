@@ -31,16 +31,17 @@ void init_proc() {
   // load program here
   // naive_uload(NULL, "/bin/init");
   // context_kload(&pcb[0], (void *)hello_fun);
-  context_uload(&pcb[0], "/bin/init");
+  context_uload(&pcb[0], "/bin/pal");
  
 }
 
 _Context* schedule(_Context *prev) {
-  return prev;
+  // return prev;
   current->cp = prev;
 
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
-  // Log("Schedule! current->cp = 0x%x, current->cp->eip = 0x%x", current->cp, current->cp->eip);
-
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current = &pcb[0];
+  // Log("Schedule! current->as->ptr = 0x%x, current->cp->eip = 0x%x", current->as.ptr, current->cp->eip);
+  current->cp->as = &current->as;
   return current->cp;
 }

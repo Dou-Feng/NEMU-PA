@@ -86,7 +86,7 @@ void __am_switch(_Context *c) {
 int _map(_AddressSpace *as, void *va, void *pa, int prot) {
   // printf("In _map:: the va is 0x%x\n", (uint32_t) va);
   // get PDE addr
-  uint32_t *dir_addr = (uint32_t*) ((uint32_t) as->ptr + (PDX(va) << 2));
+  uint32_t *dir_addr = (uint32_t*) (((uint32_t) as->ptr & 0xfffff000) + (PDX(va) << 2));
   // printf("The dir_addr is 0x%x\n", dir_addr);
   void *page;
   if ((*dir_addr & PTE_P) == 0) { // 无效的pde
@@ -98,12 +98,15 @@ int _map(_AddressSpace *as, void *va, void *pa, int prot) {
     page = (void *) *dir_addr;
   }
 
-  uint32_t *page_addr = (uint32_t *) ((uint32_t) page + (PTX(va) << 2));
+  uint32_t *page_addr = (uint32_t *) (((uint32_t)page & 0xfffff000) + (PTX(va) << 2));
   if ((*page_addr & PTE_P) == 0) { // 无效的pte
     *page_addr = (((uint32_t)pa & 0xfffff000) | PTE_P); // 变为有效的pte
   } else { // 有效的pte, 那么pt中的pte应该与物理地址对应
     assert(((uint32_t)pa & 0xfffff000) == (*page_addr & 0xfffff000));
   }
+  
+  // printf("In _map:: the page addr is 0x%x, the page_addr is 0x%x, the *page_addr is 0x%x\n", (uint32_t) page, page_addr, *page_addr);
+
   printf("_map va -> pa: 0x%x -> 0x%x\n", va, (*page_addr & 0xfffff000) + OFF(va));
   return (*page_addr & 0xfffff000) + OFF(va);
 }
@@ -118,5 +121,6 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   as->pgsize = PGSIZE;
   as->area.start = ustack.start;
   as->area.end = ustack.end;
+  // printf("In ucontext:: the ptr is 0x%x\n", as->ptr);
   return cp;
 }
