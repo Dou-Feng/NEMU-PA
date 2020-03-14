@@ -59,9 +59,11 @@ void *_brk(const void *addr) {
 }
 
 void naive_uload(PCB *pcb, const char *filename);
+void context_uload(PCB *pcb, const char *filename);
+extern PCB *current;
 
 int _execve(const char *path, char *const argv[], char *const envp[]) {
   Log("Execve, path = %s", path);
-  naive_uload(NULL, path);
+  context_uload(current, path);
   return 0;
 }

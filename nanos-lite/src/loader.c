@@ -72,6 +72,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     // assgin the uninitialized data segment to 0
     if (elf_pro_header[i].p_filesz < elf_pro_header[i].p_memsz) {
       assert(page);
+      Log("full the unintialized data segment to 0, vaddr: 0x%x, vaddr end: 0x%x", addr, 
+        (elf_pro_header[i].p_vaddr+elf_pro_header[i].p_filesz) + elf_pro_header[i].p_memsz - elf_pro_header[i].p_filesz);
+
       addr = (elf_pro_header[i].p_vaddr+elf_pro_header[i].p_filesz);
       paddr = _map(&pcb->as, (void*)addr, page, 0);
 
@@ -79,8 +82,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       if (addr + PGSIZE > pcb->max_brk) {
         pcb->max_brk = (addr & 0xfffff000) + PGSIZE;
       }
-      Log("full the unintialized data segment to 0, vaddr: 0x%x, vaddr end: 0x%x", addr, 
-        (elf_pro_header[i].p_vaddr+elf_pro_header[i].p_filesz) + elf_pro_header[i].p_memsz - elf_pro_header[i].p_filesz);
+      
 
       size += (size<0?PGSIZE:0);
       if (size + (elf_pro_header[i].p_memsz - elf_pro_header[i].p_filesz) <= PGSIZE) {
@@ -106,7 +108,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   }
   // // don't forget to free the memory
   // free(elf_pro_header);
-  // Log("The entry is 0x%x", elf_header.e_entry);
+  Log("The entry is 0x%x", elf_header.e_entry);
   return elf_header.e_entry;
 }
 
@@ -118,6 +120,7 @@ void naive_uload(PCB *pcb, const char *filename) {
 }
 
 void context_kload(PCB *pcb, void *entry) {
+  _protect(&pcb->as);
   _Area stack;
   stack.start = pcb->stack;
   stack.end = stack.start + sizeof(pcb->stack);

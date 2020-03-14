@@ -99,15 +99,13 @@ int _map(_AddressSpace *as, void *va, void *pa, int prot) {
   }
 
   uint32_t *page_addr = (uint32_t *) (((uint32_t)page & 0xfffff000) + (PTX(va) << 2));
-  if ((*page_addr & PTE_P) == 0) { // 无效的pte
-    *page_addr = (((uint32_t)pa & 0xfffff000) | PTE_P); // 变为有效的pte
-  } else { // 有效的pte, 那么pt中的pte应该与物理地址对应
-    assert(((uint32_t)pa & 0xfffff000) == (*page_addr & 0xfffff000));
-  }
+  
+  *page_addr = (((uint32_t)pa & 0xfffff000) | PTE_P); // 变为有效的pte
+  
   
   // printf("In _map:: the page addr is 0x%x, the page_addr is 0x%x, the *page_addr is 0x%x\n", (uint32_t) page, page_addr, *page_addr);
 
-  printf("_map va -> pa: 0x%x -> 0x%x\n", va, (*page_addr & 0xfffff000) + OFF(va));
+  // printf("_map va -> pa: 0x%x -> 0x%x\n", va, (*page_addr & 0xfffff000) + OFF(va));
   return (*page_addr & 0xfffff000) + OFF(va);
 }
 
